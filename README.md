@@ -12,9 +12,9 @@ A practical, beginner-friendly collection of **seven importable n8n workflows**.
 | 2 | `Sequential_Multiagent.json` | Pass one agent's output to the next | Beginner–intermediate |
 | 3 | `Multiagent_Parallel.json` | Branch a request to independent agents | Intermediate |
 | 4 | `Multiagent Supervisor.json` | A supervisor delegates work to specialist agent tools | Intermediate |
-| 5 | `MCP Server(2).json` | Expose Google Calendar, Gmail and Sheets operations as MCP tools | Advanced |
+| 5 | `MCP Server.json` | Expose Google Calendar, Gmail and Sheets operations as MCP tools | Advanced |
 | 6 | `auto scheduling and emailing agent.json` | Connect a single AI agent to an MCP server | Advanced |
-| 7 | `Multi-agent scheduling assistant(2).json` | Coordinator + calendar, contacts and email specialists using MCP | Advanced |
+| 7 | `Multi-agent scheduling assistant.json` | Coordinator + calendar, contacts and email specialists using MCP | Advanced |
 
 ## 1. What is n8n?
 
