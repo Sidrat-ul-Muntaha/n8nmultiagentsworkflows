@@ -1,0 +1,411 @@
+{
+  "name": "Multi-agent scheduling assistant",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "d0251867-568f-46d1-99fd-40670339b5b4",
+      "name": "When chat message received",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.5,
+      "position": [
+        0,
+        208
+      ],
+      "webhookId": "9c0d97f2-829b-494c-8b58-1df81c3def87"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "=You are Rizwan Ali's personal scheduling coordinator. Current date/time: {{ $now.setZone('Asia/Karachi').toFormat(\"cccc, d LLLL yyyy, h:mm a\") }} (Asia/Karachi).\n\nYou do not touch the calendar, contacts or email yourself. You delegate to specialists:\n- calendar_agent: find events, check clashes, create, reschedule, delete.\n- contacts_agent: look up guests' email addresses by name, AND add or update contacts in the contact sheet. You CAN add contacts: when the user asks to add/save a contact, call contacts_agent with \"Add contact <name> with email <email>\". If the user says \"same email\" or similar, resolve the actual address from the conversation first (or look it up with contacts_agent) and pass the full address.\n- email_agent: send invitation / cancellation / reschedule emails (always pass name + email + event details).\n\nMANDATORY ORDER for any new meeting/dinner/event (never skip or reorder):\n  Step 1. Call calendar_agent FIRST: \"Check clashes and create <title> on <date> <start>-<end> at <venue>\". If no end time is given, assume 1 hour.\n  Step 2. If calendar_agent returns CLASH: STOP. Do NOT look up contacts, do NOT send any email. Tell the user which event already occupies that time and ask whether to pick another time or book anyway.\n  Step 3. Only when calendar_agent confirms the event was CREATED and returns an event id: call contacts_agent, then email_agent. Always include \"event_id: <id>\" in the email_agent task.\nNever say an event is scheduled unless calendar_agent returned its event id in THIS turn.\n\nWorkflows:\n1. Schedule + invite: follow the MANDATORY ORDER above.\n2. Cancel: first ask calendar_agent to FIND the matching events (not delete). Show the user the list and ask \"Shall I cancel these?\". Only after the user says yes, ask calendar_agent to delete those event IDs (say \"confirmed\"). If the events have a guest (e.g. \"Dinner with Ali\"), look up the guest with contacts_agent and send a cancellation email with email_agent.\n3. Reschedule: calendar_agent reschedules (check the new slot for clashes), then contacts_agent + email_agent send the new time to the guest.\n\nRules:\n- If a guest is NOT_FOUND or AMBIGUOUS, ask the user for the email or which person; never guess.\n- If details are missing (date, time, venue), ask a short question.\n- Reply briefly and clearly in the user's language, confirming exactly what was done.",
+          "maxIterations": 15
+        }
+      },
+      "id": "be7bb7bb-0038-4b1e-84b5-e2d79af0c37f",
+      "name": "Coordinator Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        496,
+        208
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "id": "962e4d49-1f74-4ff5-9147-ff6f91369d96",
+      "name": "Coordinator Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        224,
+        432
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "hV3dgCds3zoHgS5Z",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 10
+      },
+      "id": "6370c0be-0f7f-4a25-9df3-4591d0dd48f4",
+      "name": "Conversation Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        352,
+        432
+      ]
+    },
+    {
+      "parameters": {
+        "toolDescription": "Calendar specialist. Can list events, check for clashes, create, reschedule and delete events in Google Calendar. Give it one clear instruction in plain English including dates/times, e.g. \"Find all events tonight\" or \"Delete event IDs X and Y\" or \"Create Dinner with Ali at Kolachi today 8-9 PM\".",
+        "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('task', 'The calendar task to perform, with all needed details') }}",
+        "options": {
+          "systemMessage": "=You are the Calendar agent. Current date/time: {{ $now.setZone('Asia/Karachi').toISO() }} (timezone Asia/Karachi, +05:00).\n\nTools (from the MCP Calendar server): get_events, create_event, reschedule_event, delete_event.\n\nRules:\n- Always use ISO 8601 times with +05:00 offset. \"Tonight\" means from now until 23:59 today.\n- Before create_event, call get_events for that time window. If anything overlaps, do NOT create; return \"CLASH:\" plus the overlapping events, unless the task says to book anyway.\n- Before reschedule_event or delete_event, call get_events to get the real event ID. Never invent IDs.\n- If the task asks to delete events and does not say it is confirmed, do NOT delete. Return \"NEEDS_CONFIRMATION:\" with the list of matching events (id, title, time).\n- Reply with a short factual summary: what you found or changed, with event id, title, start/end, location.",
+          "maxIterations": 10
+        }
+      },
+      "id": "5d9df9bb-d4ba-4cfa-b553-fdce1b4d9c87",
+      "name": "calendar_agent",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        480,
+        432
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "id": "e78702a3-2c43-4998-a5d2-4d47c39b684c",
+      "name": "Calendar Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        480,
+        640
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "hV3dgCds3zoHgS5Z",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "endpointUrl": "https://rizwan110.app.n8n.cloud/mcp/bb9c77a3-fb29-4440-9c89-e72e7c6c882b",
+        "include": "selected",
+        "includeTools": [
+          "get_events",
+          "create_event",
+          "reschedule_event",
+          "delete_event"
+        ],
+        "options": {}
+      },
+      "id": "7f724dbd-ae97-4233-8016-af6fca516d99",
+      "name": "Calendar MCP",
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.4,
+      "position": [
+        640,
+        640
+      ]
+    },
+    {
+      "parameters": {
+        "toolDescription": "Contacts specialist. (1) LOOK UP: give it person names and it returns their email addresses from the contact sheet, or says who was not found / is ambiguous. (2) ADD/UPDATE: give it \"Add contact <name> with email <email>\" and it saves the contact to the sheet (updates the email if the name already exists).",
+        "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('task', 'Either names to look up, e.g. \"Look up Ali, Fareed\", or a contact to save, e.g. \"Add contact Ali with email ali@gmail.com\"') }}",
+        "options": {
+          "systemMessage": "You are the Contacts agent. Tools (from the MCP server): get_contacts (columns NAME and EMAILS) and save_contact (name, email).\nLOOK UP task: call get_contacts, then match each requested name case-insensitively, ignoring extra spaces.\nReturn one line per name: \"<name>: <email>\" or \"<name>: NOT_FOUND\" or \"<name>: AMBIGUOUS (<options>)\".\nADD/UPDATE task: the task must contain a name and a full email address. Call save_contact with name (capitalised, e.g. \"Ali\") and email. Then reply \"SAVED: <name> <email>\". If the email is missing, do not save; reply \"MISSING_EMAIL\".\nNever guess or make up an email address.",
+          "maxIterations": 4
+        }
+      },
+      "id": "d8af4a15-f370-4011-8001-57e321d01cf2",
+      "name": "contacts_agent",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        992,
+        432
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "id": "da026646-62b9-49af-8815-60d870f5faa4",
+      "name": "Contacts Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        944,
+        640
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "hV3dgCds3zoHgS5Z",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "endpointUrl": "https://rizwan110.app.n8n.cloud/mcp/bb9c77a3-fb29-4440-9c89-e72e7c6c882b",
+        "include": "selected",
+        "includeTools": [
+          "get_contacts",
+          "save_contact"
+        ],
+        "options": {}
+      },
+      "id": "712e9aba-08d2-474a-bf52-caba562720e5",
+      "name": "Contacts MCP",
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.4,
+      "position": [
+        1136,
+        656
+      ]
+    },
+    {
+      "parameters": {
+        "toolDescription": "Email specialist. Writes and sends invitation, cancellation or reschedule emails. Give it: email type, event_id returned by calendar_agent (required for invitations/reschedules), recipient name AND email address, event title, date, time, venue (and old time for reschedules). Only call it AFTER calendar_agent created the event without a clash.",
+        "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('email_task', 'What email to send, to whom (name + email address), and all event details') }}",
+        "options": {
+          "systemMessage": "You are the Email agent writing on behalf of Rizwan Ali. Tool (from the MCP server): send_email (to_email, subject, message).\nWrite a short, warm, polite HTML email addressed to the guest by name, then send it with send_email.\nTypes: invitation (event, date, time, venue), cancellation (apologise, event and original time), reschedule (old time -> new time).\nSign off as \"Rizwan Ali\". Only send to the exact email address given in the task; if none is given, do not send and say \"MISSING_EMAIL\".\nFor an invitation or reschedule, the task MUST contain \"event_id:\" from the calendar. If it does not, do NOT send; reply \"NO_EVENT_ID: book the event with calendar_agent first\".\nSubject must state the real date, e.g. \"Dinner Invitation - Wed 4 Nov, 6:00 PM\". Never write \"tonight\" or \"tomorrow\" in the subject.\nReply with: sent to <email>, subject <subject>.",
+          "maxIterations": 4
+        }
+      },
+      "id": "a46c912c-dd8d-44c6-979b-980fbc6f0382",
+      "name": "email_agent",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        1280,
+        432
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "id": "a9009c26-c492-45fe-9cfe-a6976a502e7f",
+      "name": "Email Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1280,
+        656
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "hV3dgCds3zoHgS5Z",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "endpointUrl": "https://rizwan110.app.n8n.cloud/mcp/bb9c77a3-fb29-4440-9c89-e72e7c6c882b",
+        "include": "selected",
+        "includeTools": [
+          "send_email"
+        ],
+        "options": {}
+      },
+      "id": "311549b6-c355-420f-ae1b-b9641428f2d9",
+      "name": "Email MCP",
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.4,
+      "position": [
+        1424,
+        672
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Coordinator Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Coordinator Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Coordinator Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Conversation Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Coordinator Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "calendar_agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Coordinator Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calendar Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "calendar_agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calendar MCP": {
+      "ai_tool": [
+        [
+          {
+            "node": "calendar_agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "contacts_agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Coordinator Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Contacts Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "contacts_agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Contacts MCP": {
+      "ai_tool": [
+        [
+          {
+            "node": "contacts_agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "email_agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Coordinator Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "email_agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email MCP": {
+      "ai_tool": [
+        [
+          {
+            "node": "email_agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "0fc023ca-b298-4be1-9bf1-4d9038ff06ba",
+  "meta": {
+    "instanceId": "7116a90c72ab8e9d8690576dd609cfba7893f68db57b12b64c3f021414952b9c"
+  },
+  "nodeGroups": [],
+  "id": "qFkS3RP9zdbmTbZh",
+  "tags": []
+}

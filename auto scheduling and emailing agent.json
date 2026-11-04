@@ -1,0 +1,146 @@
+{
+  "name": "auto scheduling and emailing agent",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.5,
+      "position": [
+        -128,
+        -32
+      ],
+      "id": "98949132-360f-4fd3-9521-0722c888b0c1",
+      "name": "When chat message received",
+      "webhookId": "24dffbd1-b610-4f13-89b6-01d5dd9dee6d"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "=You are a helpful assistant.\n\nCalanderMCP: please call on this tool for quries related to scheduling or calander.\nplease note today's date and time {{ $now }}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        96,
+        -32
+      ],
+      "id": "4f6aa7eb-0e27-4428-bc84-52faed4c644d",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -48,
+        176
+      ],
+      "id": "998d5808-999f-47e4-9968-8a5dcedcba41",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "hV3dgCds3zoHgS5Z",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        112,
+        176
+      ],
+      "id": "7b2ca9e6-0fbc-4e08-b0a5-8cd45b7b0d85",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "endpointUrl": "https://rizwan110.app.n8n.cloud/mcp/bb9c77a3-fb29-4440-9c89-e72e7c6c882b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.4,
+      "position": [
+        288,
+        192
+      ],
+      "id": "ff0d8ded-13c8-40f6-9b49-8b22ce0e1828",
+      "name": "MCP Client"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MCP Client": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true
+  },
+  "versionId": "02cbec56-028c-487c-9909-bd68a413da51",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7116a90c72ab8e9d8690576dd609cfba7893f68db57b12b64c3f021414952b9c"
+  },
+  "nodeGroups": [],
+  "id": "Bgxtu6JlcAZddGsx",
+  "tags": []
+}

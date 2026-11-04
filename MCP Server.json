@@ -1,0 +1,371 @@
+{
+  "name": "MCP Calander",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "bb9c77a3-fb29-4440-9c89-e72e7c6c882b"
+      },
+      "id": "05659edd-62f5-4489-a986-671f1dca9a7f",
+      "name": "MCP Server Trigger",
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "typeVersion": 2.1,
+      "position": [
+        80,
+        0
+      ],
+      "webhookId": "bb9c77a3-fb29-4440-9c89-e72e7c6c882b"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Create a calendar event. Check get_events for clashes first.",
+        "calendar": {
+          "__rl": true,
+          "value": "memonrizwan053@gmail.com",
+          "mode": "list",
+          "cachedResultName": "memonrizwan053@gmail.com"
+        },
+        "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', ``, 'string') }}",
+        "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', ``, 'string') }}",
+        "useDefaultReminders": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Use_Default_Reminders', ``, 'boolean') }}",
+        "additionalFields": {
+          "description": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Description', ``, 'string') }}",
+          "location": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('location', 'Venue of the event, or empty string if unknown') }}",
+          "summary": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Summary', ``, 'string') }}"
+        }
+      },
+      "id": "f3a44f80-1ca6-49b1-9d83-36a0addb6ce4",
+      "name": "create_event",
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        -240,
+        240
+      ],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "BAUtdDCFz8TfyPAi",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "List calendar events between a start and end time (ISO 8601 with timezone, Asia/Karachi +05:00). Returns each event id, summary, start and end. Use before deleting events to get their real IDs.",
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "memonrizwan053@gmail.com",
+          "mode": "list",
+          "cachedResultName": "memonrizwan053@gmail.com"
+        },
+        "returnAll": true,
+        "timeMin": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('time_min', 'Start of the time range, ISO 8601 e.g. 2026-11-03T18:00:00+05:00') }}",
+        "timeMax": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('time_max', 'End of the time range, ISO 8601 e.g. 2026-11-03T23:59:59+05:00') }}",
+        "options": {
+          "orderBy": "startTime"
+        }
+      },
+      "id": "38d6c2ca-b7a0-4f0e-bf6f-3838d21f49ac",
+      "name": "get_events",
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        -112,
+        240
+      ],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "BAUtdDCFz8TfyPAi",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Move an existing event to a new start/end time. Requires the real event ID from get_events.",
+        "operation": "update",
+        "calendar": {
+          "__rl": true,
+          "value": "memonrizwan053@gmail.com",
+          "mode": "list",
+          "cachedResultName": "memonrizwan053@gmail.com"
+        },
+        "eventId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('event_id', 'Real event ID returned by get_events') }}",
+        "updateFields": {
+          "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('new_end', 'New end, ISO 8601 with +05:00 offset') }}",
+          "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('new_start', 'New start, ISO 8601 with +05:00 offset') }}"
+        }
+      },
+      "id": "a666bf81-71ce-4125-b327-85634560cd2d",
+      "name": "reschedule_event",
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        32,
+        240
+      ],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "BAUtdDCFz8TfyPAi",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Delete (cancel) one calendar event by its real event ID. Always call get_events first to find the ID; never invent or guess an event ID. Call once per event to cancel several.",
+        "operation": "delete",
+        "calendar": {
+          "__rl": true,
+          "value": "memonrizwan053@gmail.com",
+          "mode": "list",
+          "cachedResultName": "memonrizwan053@gmail.com"
+        },
+        "eventId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Event_ID', ``, 'string') }}",
+        "options": {}
+      },
+      "id": "8f700c73-53fa-469a-ac1e-43ca816f7ef0",
+      "name": "delete_event",
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        160,
+        240
+      ],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "BAUtdDCFz8TfyPAi",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Send an email (invitation, cancellation or reschedule notice) to a guest. Look up the guest email by name with get_contacts first; never guess an email address.",
+        "sendTo": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('to_email', 'Email address of the guest being invited') }}",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('subject', 'Email subject, e.g. Dinner Invitation - Tonight at 6:00 PM') }}",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('message', 'Friendly HTML invitation addressed to the guest by name, clearly stating the event, date, time and venue') }}",
+        "options": {
+          "appendAttribution": false,
+          "senderName": "Rizwan Ali"
+        }
+      },
+      "id": "aa43ad31-48f1-49da-93fb-4beedb323045",
+      "name": "send_email",
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.2,
+      "position": [
+        288,
+        240
+      ],
+      "webhookId": "5813af03-2808-4644-8d24-8fb0984ae6f2",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "FyiTnVEqdoCDOZYI",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Returns the contact list (columns Name and Email). Use it to find a guest's email address from their name before sending an invitation. Match names case-insensitively; if several contacts match or none match, ask the user instead of guessing.",
+        "documentId": {
+          "__rl": true,
+          "value": "1vxWoI7zHGZbSDZ0lHIRQ5VWf38cWxbhXVRcXs4eGiqY",
+          "mode": "list",
+          "cachedResultName": "name and emails",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1vxWoI7zHGZbSDZ0lHIRQ5VWf38cWxbhXVRcXs4eGiqY/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "options": {}
+      },
+      "id": "cc92644a-3e07-4474-82f0-51568763d601",
+      "name": "get_contacts",
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        416,
+        240
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "D8lx6LzBLdXtREzb",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Add a new contact or update an existing contact's email in the contact sheet. Matches on NAME: if the name exists its email is updated, otherwise a new row is added. Use only when the user explicitly asks to add or change a contact.",
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1vxWoI7zHGZbSDZ0lHIRQ5VWf38cWxbhXVRcXs4eGiqY",
+          "mode": "list",
+          "cachedResultName": "name and emails",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1vxWoI7zHGZbSDZ0lHIRQ5VWf38cWxbhXVRcXs4eGiqY/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1vxWoI7zHGZbSDZ0lHIRQ5VWf38cWxbhXVRcXs4eGiqY/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "NAME": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('name', 'Contact name exactly as the user said it, e.g. Ali', 'string') }}",
+            "EMAILS": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('email', 'Contact email address, e.g. ali@example.com', 'string') }}"
+          },
+          "matchingColumns": [
+            "NAME"
+          ],
+          "schema": [
+            {
+              "id": "NAME",
+              "displayName": "NAME",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "EMAILS",
+              "displayName": "EMAILS",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "8dc14fe8-ede5-4391-b180-154395a00d76",
+      "name": "save_contact",
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        544,
+        240
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "D8lx6LzBLdXtREzb",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "create_event": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_events": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "reschedule_event": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "delete_event": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "send_email": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_contacts": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "save_contact": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true
+  },
+  "versionId": "9611a11c-70a2-4fe6-b6ae-538ff66c9c42",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7116a90c72ab8e9d8690576dd609cfba7893f68db57b12b64c3f021414952b9c"
+  },
+  "nodeGroups": [],
+  "id": "sZncBRHgG0nE0MPF",
+  "tags": []
+}
