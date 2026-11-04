@@ -1,0 +1,303 @@
+{
+  "name": "Multiagent_Parallel",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "8c87a73f-7347-4bc2-84f1-690f82a745c7",
+      "name": "When chat message received",
+      "webhookId": "f0d5270a-65ba-413b-9fd2-4a332d2b437d"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "You are a Flight Recommendation Agent.\n\nYour job is to:\n- recommend one suitable flight\n- suggest a budget-friendly option\n- return short flight details\n\nKeep the response:\n- short\n- clean\n- professional\n\nDo not explain reasoning."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        288,
+        -240
+      ],
+      "id": "87c695aa-513e-48b2-8db8-332d5c78168b",
+      "name": "Flight Recommendation Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        224,
+        336
+      ],
+      "id": "9bf2b253-c652-4ad0-8840-14d31932ef15",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "You are a Hotel Recommendation Agent.\n\nYour job is to:\n- recommend one suitable hotel\n- suggest a budget-friendly stay\n- return short hotel details\n\nKeep the response:\n- short\n- clean\n- professional\n\nDo not explain reasoning."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        304,
+        192
+      ],
+      "id": "f543fee4-c2ba-4fe4-9b1f-e08f74c0468e",
+      "name": "Hotel Recommedation Agent"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "You are a Tourist Place Recommendation Agent.\n\nYour job is to:\n- recommend famous tourist attractions\n- suggest places to visit\n- return short travel recommendations\n\nKeep the response:\n- short\n- clean\n- professional\n\nDo not explain reasoning."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        400,
+        -32
+      ],
+      "id": "ae244927-9a3f-4efb-811e-821ec50ba9c9",
+      "name": "Tourist Place Recommendation Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        240,
+        64
+      ],
+      "id": "3cc22e0e-5c0c-42fc-84c5-868985196218",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        112,
+        -320
+      ],
+      "id": "f297881b-d0d4-447b-92d2-757ecaf216de",
+      "name": "OpenAI Chat Model2",
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.output }}",
+        "options": {
+          "systemMessage": "You are a Travel Summary Agent.\n\nYour job is to:\n- combine the flight recommendation\n- combine the hotel recommendation\n- and generate one final travel summary.\n\nThe final response should contain:\n- recommended flight\n- recommended hotel\n- short travel summary\n\nKeep the response:\n- very short\n- professional\n- easy to read\n\nDo not ask follow-up questions.\nDo not explain reasoning."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1152,
+        -96
+      ],
+      "id": "0e350bbc-f4c2-4269-822d-aeb5f97d9b71",
+      "name": "Travel Summary Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1024,
+        112
+      ],
+      "id": "f528f159-9a26-40e4-ade1-98a1d4811aed",
+      "name": "OpenAI Chat Model3",
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Flight Recommendation Agent",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Tourist Place Recommendation Agent",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Hotel Recommedation Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Hotel Recommedation Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Tourist Place Recommendation Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Flight Recommendation Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Flight Recommendation Agent": {
+      "main": [
+        [
+          {
+            "node": "Travel Summary Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tourist Place Recommendation Agent": {
+      "main": [
+        [
+          {
+            "node": "Travel Summary Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hotel Recommedation Agent": {
+      "main": [
+        [
+          {
+            "node": "Travel Summary Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Travel Summary Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "8d327a2d-ff2c-4c63-af7a-3048d4c53569",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "cdadd0136692ff493506275b8f1ee2769b2e2b0a81f5573983712f49de183294"
+  },
+  "nodeGroups": [],
+  "id": "ZR3og8D567gBj8ll",
+  "tags": []
+}

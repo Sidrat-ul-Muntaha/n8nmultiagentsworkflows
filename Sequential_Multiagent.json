@@ -1,0 +1,231 @@
+{
+  "name": "Sequential_Multiagent",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "02cdf5fa-9484-4e4a-a499-9cd86f65329b",
+      "name": "When chat message received",
+      "webhookId": "5b7f58b5-25a7-4a15-91db-ce16d618dfd0"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "You are a Flight Recommendation Agent.\n\nYour job is to:\n- recommend one suitable flight\n- suggest a budget-friendly option\n- return short flight details that can be used by the next agent\n\nKeep the response:\n- short\n- clean\n- professional\n\nDo not explain reasoning."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "874b1a8b-6c4b-4973-89cc-970edf74071e",
+      "name": "Flight Recommendation Agent"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.output }}",
+        "options": {
+          "systemMessage": "You are a Hotel Recommendation Agent.\n\nYour job is to:\n- recommend one suitable hotel\n- suggest a budget-friendly stay\n- return short hotel details along with the received flight details for the next agent\n\nKeep the response:\n- short\n- clean\n- professional\n\nDo not explain reasoning."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        528,
+        0
+      ],
+      "id": "13dec771-3db6-4ce7-9d1e-42fab036bbda",
+      "name": "Hotel Recommendation Agent"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.output }}",
+        "options": {
+          "systemMessage": "You are a Travel Summary Agent.\n\nYour job is to:\n- combine the flight recommendation\n- combine the hotel recommendation\n- and generate one final travel summary.\n\nThe final response should contain:\n- recommended flight\n- recommended hotel\n- short travel summary\n\nKeep the response:\n- very short\n- professional\n- easy to read\n\nDo not ask follow-up questions.\nDo not explain reasoning."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        864,
+        0
+      ],
+      "id": "9e682372-7876-4f73-84e6-a189ec82eec0",
+      "name": "Travel Summary Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        176,
+        240
+      ],
+      "id": "f12a51ca-8e8c-45cc-9ae6-bbb51b1d5c5f",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "gpt-4o"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        512,
+        240
+      ],
+      "id": "c3e5b040-a1c5-4121-9381-e87d360be53b",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        832,
+        224
+      ],
+      "id": "20864eb1-d325-40e2-bddb-e27217e11056",
+      "name": "OpenAI Chat Model2",
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Flight Recommendation Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Flight Recommendation Agent": {
+      "main": [
+        [
+          {
+            "node": "Hotel Recommendation Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hotel Recommendation Agent": {
+      "main": [
+        [
+          {
+            "node": "Travel Summary Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Flight Recommendation Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Hotel Recommendation Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Travel Summary Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "d70fe07e-f064-45ed-8154-14fe2ff6a0d1",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "cdadd0136692ff493506275b8f1ee2769b2e2b0a81f5573983712f49de183294"
+  },
+  "nodeGroups": [],
+  "id": "4tLeLNhihGA9zzO8",
+  "tags": []
+}
