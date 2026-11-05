@@ -365,3 +365,15 @@ Calendar agent checks for clashes
 ---
 
 **Recommended sequence:** First import and run the Simple Agent. Then open sequential → parallel → supervisor orchestration. Finally set up the MCP Server **before** running either MCP client workflow. Inspect every execution, not just the final chat response.
+
+
+---
+## Additional introductory resource: `n8n Nodes.json`
+
+This eighth export is a **node demonstration canvas**, not one fully linked executable workflow. It contains 32 nodes demonstrating trigger types (manual, schedule, Typeform), storage (Sheets, n8n Data Table, Notion, Airtable), processing (Edit Fields, Split Out, Aggregate, If, Switch, Code, Merge, Wait), APIs (HTTP Request, Webhook and Respond), and AI tools (Chat Trigger, AI Agent, Anthropic model, OpenAI model, Tavily MCP, PostgreSQL chat memory).
+
+**Setup:** Import `Workflow/n8n Nodes.json`, read its sticky-note sections, inspect connections, then configure one sample branch at a time and execute it using non-sensitive dummy data. Nodes shown without connections are references rather than one end-to-end runnable process. Credentials and document/database selections must be recreated in each learner's account.
+
+**Safety:** The original upload included an embedded third-party weather API key and personal demonstration contacts. The `Workflow/n8n Nodes.json` inside this submission package is a **sanitized copy** with the key replaced by a placeholder and credentials/resource identifiers cleared. Before running the weather request, configure your own valid API credential; do not publish or reuse the key from the original file.
+
+**Practice checks:** Inspect the Edit Fields → Split Out example for one item per lead; experiment with If/Switch conditions; test a Chat Trigger → AI Agent with an attached model and compare the node-level results.
