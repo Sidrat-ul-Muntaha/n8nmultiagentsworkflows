@@ -364,4 +364,4 @@ Calendar agent checks for clashes
 
 ---
 
-**Recommended teaching sequence:** First import and run the Simple Agent. Then teach sequential → parallel → supervisor orchestration. Finally set up the MCP Server **before** running either MCP client workflow. Inspect every execution, not just the final chat response.
+**Recommended sequence:** First import and run the Simple Agent. Then open sequential → parallel → supervisor orchestration. Finally set up the MCP Server **before** running either MCP client workflow. Inspect every execution, not just the final chat response.
